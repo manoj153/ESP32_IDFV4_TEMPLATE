@@ -1,0 +1,20 @@
+{
+    "project_name":       "bootloader",
+    "project_path":       "/home/manojkumar/esp/esp-idf/components/bootloader/subproject",
+    "build_dir":          "/home/manojkumar/esp/get-started/blink/build/bootloader",
+    "config_file":        "/home/manojkumar/esp/get-started/blink/sdkconfig",
+    "config_defaults":    "",
+    "app_elf":            "bootloader.elf",
+    "app_bin":            "bootloader.bin",
+    "git_revision":       "v4.2-dev-1126-gd85d3d969-dirty",
+    "target":             "esp32",
+    "phy_data_partition": "",
+    "monitor_baud" :      "115200",
+    "monitor_toolprefix": "xtensa-esp32-elf-",
+    "config_environment" : {
+        "COMPONENT_KCONFIGS" : "/home/manojkumar/esp/esp-idf/components/efuse/Kconfig;/home/manojkumar/esp/esp-idf/components/esp32/Kconfig;/home/manojkumar/esp/esp-idf/components/esp_common/Kconfig;/home/manojkumar/esp/esp-idf/components/log/Kconfig;/home/manojkumar/esp/esp-idf/components/spi_flash/Kconfig",
+        "COMPONENT_KCONFIGS_PROJBUILD" : "/home/manojkumar/esp/esp-idf/components/bootloader/Kconfig.projbuild;/home/manojkumar/esp/esp-idf/components/esptool_py/Kconfig.projbuild;/home/manojkumar/esp/esp-idf/components/partition_table/Kconfig.projbuild"
+    },
+    "build_components" : [ "bootloader", "bootloader_support", "efuse", "esp32", "esp_common", "esp_rom", "esptool_py", "log", "main", "micro-ecc", "partition_table", "soc", "spi_flash", "xtensa", "" ],
+    "build_component_paths" : [ "/home/manojkumar/esp/esp-idf/components/bootloader", "/home/manojkumar/esp/esp-idf/components/bootloader_support", "/home/manojkumar/esp/esp-idf/components/efuse", "/home/manojkumar/esp/esp-idf/components/esp32", "/home/manojkumar/esp/esp-idf/components/esp_common", "/home/manojkumar/esp/esp-idf/components/esp_rom", "/home/manojkumar/esp/esp-idf/components/esptool_py", "/home/manojkumar/esp/esp-idf/components/log", "/home/manojkumar/esp/esp-idf/components/bootloader/subproject/main", "/home/manojkumar/esp/esp-idf/components/bootloader/subproject/components/micro-ecc", "/home/manojkumar/esp/esp-idf/components/partition_table", "/home/manojkumar/esp/esp-idf/components/soc", "/home/manojkumar/esp/esp-idf/components/spi_flash", "/home/manojkumar/esp/esp-idf/components/xtensa", "" ]
+}
