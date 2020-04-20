@@ -2,4 +2,17 @@
 
 Starts a FreeRTOS task to blink an LED
 
-See the README.md file in the upper level 'examples' directory for more information about examples.
+### Run following command to get access to IDF toolchain to your enviroment
+```
+cd esp-idf/
+./install.sh
+. ./export.sh
+```
+
+### Then you may want to build and flash by :
+
+```
+idf.py flash
+```
+
+
