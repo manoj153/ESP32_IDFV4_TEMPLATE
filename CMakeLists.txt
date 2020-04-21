@@ -3,4 +3,4 @@
 cmake_minimum_required(VERSION 3.5)
 
 include(${CMAKE_CURRENT_LIST_DIR}/esp-idf/tools/cmake/project.cmake)
-project(blink)
+project(wifi-test)
