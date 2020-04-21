@@ -1,6 +1,6 @@
-# Blink Example
+# WIFI ON ESP32 
 
-Starts a FreeRTOS task to blink an LED
+
 
 ### Run following command to get access to IDF toolchain to your enviroment
 ```
@@ -14,5 +14,8 @@ cd esp-idf/
 ```
 idf.py flash
 ```
+## Agenda
 
-
+*   have ability to detect WiFi lost and reconnect
+*   benchmark speed of reconnecions 
+*   based on above point tweak wifi beacon frames to achieve optimum reconnection speed 
