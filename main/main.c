@@ -23,6 +23,8 @@
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
+
+
 #define BLINK_GPIO CONFIG_BLINK_GPIO
 #define WIFI_SSID_1      CONFIG_ESP_WIFI_SSID
 #define WIFI_PWD_1      CONFIG_ESP_WIFI_PASSWORD
@@ -35,6 +37,8 @@ static EventGroupHandle_t s_wifi_event_group;
 
 static const char *TAG = "wifi-testing";
 static int s_retry_num = 0;
+uint32_t connection_flag = 0;
+
 
 static void event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
@@ -43,45 +47,42 @@ static void event_handler(void* arg, esp_event_base_t event_base,
         esp_wifi_connect();
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         if (s_retry_num < EXAMPLE_ESP_MAXIMUM_RETRY) {
+            if(connection_flag > 0)
+            {
+                //Explains earlier it was connected and for some reason disconnected
+                ESP_LOGI(TAG,"Disconnection from AP happened");
+                connection_flag = 0U;
+
+            }
             esp_wifi_connect();
             s_retry_num++;
             ESP_LOGI(TAG, "retry to connect to the AP");
         } else {
             xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
         }
-        ESP_LOGI(TAG,"connect to the AP fail");
+        ESP_LOGE(TAG,"connect to the AP fail");
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
-        ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+        ESP_LOGI(TAG, "got ip:%s",
+                 ip4addr_ntoa(&event->ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
 }
 
-void wifi_init_sta(void)
+void wifi_init_sta()
 {
     s_wifi_event_group = xEventGroupCreate();
 
-    ESP_ERROR_CHECK(esp_netif_init());
+    tcpip_adapter_init();
 
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-    esp_netif_create_default_wifi_sta();
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
-    esp_event_handler_instance_t instance_any_id;
-    esp_event_handler_instance_t instance_got_ip;
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
-                                                        ESP_EVENT_ANY_ID,
-                                                        &event_handler,
-                                                        NULL,
-                                                        &instance_any_id));
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT,
-                                                        IP_EVENT_STA_GOT_IP,
-                                                        &event_handler,
-                                                        NULL,
-                                                        &instance_got_ip));
+    ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL));
 
     wifi_config_t wifi_config = {
         .sta = {
@@ -107,19 +108,23 @@ void wifi_init_sta(void)
      * happened. */
     if (bits & WIFI_CONNECTED_BIT) {
         ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
-                 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+                 WIFI_SSID_1, WIFI_PWD_1);
+                 connection_flag = 1U;
     } else if (bits & WIFI_FAIL_BIT) {
         ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
-                 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
-    } else {
+                 WIFI_SSID_1, WIFI_PWD_1);
+    }
+      
+      else {
         ESP_LOGE(TAG, "UNEXPECTED EVENT");
     }
 
-    /* The event will not be processed after unregister */
-    ESP_ERROR_CHECK(esp_event_handler_instance_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, instance_got_ip));
-    ESP_ERROR_CHECK(esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, instance_any_id));
-    vEventGroupDelete(s_wifi_event_group);
+    // ESP_ERROR_CHECK(esp_event_handler_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler));
+    // ESP_ERROR_CHECK(esp_event_handler_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler));
+    // vEventGroupDelete(s_wifi_event_group);
 }
+
+
 
 void blink_task_routine()
 {
@@ -135,6 +140,14 @@ void blink_task_routine()
         vTaskDelay(500 / portTICK_PERIOD_MS);
     }
 }
+
+void wifi_event_loop_task()
+{
+    while(1)
+    {
+
+    }
+}
 void app_main(void)
 {
     /* Configure the IOMUX register for pad BLINK_GPIO (some pads are
@@ -148,4 +161,14 @@ void app_main(void)
     gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
 
     xTaskCreate(&blink_task_routine,"BLINK_ROUTINE",2048,NULL,10,NULL);
+        //Initialize NVS
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+      ESP_ERROR_CHECK(nvs_flash_erase());
+      ret = nvs_flash_init();
+    }
+    ESP_ERROR_CHECK(ret);
+
+    ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
+    wifi_init_sta();
 }
