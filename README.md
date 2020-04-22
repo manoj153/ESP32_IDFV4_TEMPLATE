@@ -23,7 +23,7 @@ idf.py flash
 *   based on above point tweak wifi beacon frames to achieve optimum reconnection speed
 
 
-# Achieved :
+# Achieved Objectives :
 ## 1. Project structure
 
 ```
@@ -37,4 +37,8 @@ Components
         UART_main.h
 ```
 ## 2. Basic setup of CMAKE with WiFi component
+
+## 3. Connection connected/disconnected 
+
+
 MANOJKUMAR SUBRAMANIAM
