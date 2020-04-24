@@ -23,7 +23,7 @@
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
-
+#define GOT_IP_BIT BIT1
 
 #define BLINK_GPIO CONFIG_BLINK_GPIO
 #define WIFI_SSID_1      CONFIG_ESP_WIFI_SSID
@@ -58,7 +58,7 @@ static void event_handler(void* arg, esp_event_base_t event_base,
             s_retry_num++;
             ESP_LOGI(TAG, "retry to connect to the AP");
         } else {
-            xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
+            xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);// more than maximum_retry
         }
         ESP_LOGE(TAG,"connect to the AP fail");
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
@@ -92,7 +92,7 @@ void wifi_init_sta()
     };
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
-    ESP_ERROR_CHECK(esp_wifi_start() );
+    ESP_ERROR_CHECK(esp_wifi_start());
 
     ESP_LOGI(TAG, "wifi_init_sta finished.");
 
